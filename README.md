@@ -1,9 +1,13 @@
-# RuTor popular torrents highlight
-Highlight popular torrents (based on peers) on Rutor.(org|info|is)
+# Kinozal Magnetizer
+Add magnet-link (icon) before download button on details pages and search.
 
-Hide not interested torrents. (matched words configurable)
+Add download button on search page.
 
-Colors configurable.
+Add "Add to TorrServer" button on details pages and search
+
+Configurable
+
+Applicable for kinozal.(tv|me|guru)
 
 ![img.png](docs/img.png)
 
