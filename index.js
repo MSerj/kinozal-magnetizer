@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Kinozal Magnetizer
 // @description   Magnet link-icon maker for kinozal.(tv|me|guru)
-// @version       1.05
+// @version       1.10
 // @match         *://kinozal.tv/details.php*
 // @match	      *://kinozal.me/details.php*
 // @match	      *://kinozal.guru/details.php*
@@ -39,6 +39,7 @@ GM_addStyle('#mserj_settings .fields { padding: 5px; }')
 GM_addStyle('#mserj_settings .fields .row { display: flex; margin-bottom: 10px; }')
 GM_addStyle('#mserj_settings .fields .row .label { display: flex; align-items: center; }')
 GM_addStyle('#mserj_settings .fields .row .label span { margin-right: 10px; }')
+GM_addStyle('#mserj_settings .fields .row .label span:first-child { width: 100px; }')
 
 // Magnet icon SVG data
 const magnetIcon = `
@@ -67,12 +68,22 @@ const magnetIcon = `
   </svg>
 `
 
-// settings
+// TorrServer icon
+const torrServerIcon = `<img src="data:image/png;base64,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" width="25px" height="25px"  alt="TorrServer" />`
+
+/**
+ * Settings stuff
+ */
 let settings = {}
 const loadSettings = () => {
 	settings = {
 		showMagnetButton: GM_getValue('showMagnetButton', true),
-		showDownloadButton: GM_getValue('showDownloadButton', false)
+		showDownloadButton: GM_getValue('showDownloadButton', false),
+		showAddToTorrServerButton: GM_getValue('showAddToTorrServerButton', false),
+		torrServerIp: GM_getValue('torrServerIp', 'localhost'),
+		torrServerPort: GM_getValue('torrServerPort', 8090),
+		torrServerLogin: GM_getValue('torrServerLogin', ''),
+		torrServerPassword: GM_getValue('torrServerPassword', '')
 	}
 }
 
@@ -84,6 +95,12 @@ const toggleSettings = () => {
 
 	$('#mserj_showMagnetButton').attr('checked', !!settings.showMagnetButton)
 	$('#mserj_showDownloadButton').attr('checked', !!settings.showDownloadButton)
+
+	$('#mserj_showAddToTorrServerButton').attr('checked', !!settings.showAddToTorrServerButton)
+	$('#mserj_torrServerIp').val(settings.torrServerIp)
+	$('#mserj_torrServerPort').val(settings.torrServerPort)
+	$('#mserj_torrServerLogin').val(settings.torrServerLogin)
+	$('#mserj_torrServerPassword').val(settings.torrServerPassword)
 
 	$('#mserj_settings').css({ left: x, top: y }).toggle('fast')
 }
@@ -112,6 +129,37 @@ const attachSettingsModal = () => {
 	          <button class="mserj-download-btn"></button>
 	        </label>
 	      </div>
+	      <div class="row">
+	        <label class="label">
+	          <input type="checkbox" id="mserj_showAddToTorrServerButton">
+	          <span>Показывать кнопку "TorrServer"</span>
+	          ${torrServerIcon}
+	        </label>
+	      </div>
+	      <div class="row">
+	        <label class="label">
+	          <span>TorrServer IP</span>
+	          <input type="text" id="mserj_torrServerIp">
+	        </label>
+	      </div>
+	      <div class="row">
+	        <label class="label">
+	          <span>TorrServer Port</span>
+	          <input type="text" id="mserj_torrServerPort">
+	        </label>
+	      </div>
+	      <div class="row">
+	        <label class="label">
+	          <span>TorrServer Login</span>
+	          <input type="text" id="mserj_torrServerLogin">
+	        </label>
+	      </div>
+	      <div class="row">
+	        <label class="label">
+	          <span>TorrServer Password</span>
+	          <input type="password" id="mserj_torrServerPassword">
+	        </label>
+	      </div>
 	      <div class="row" style="justify-content: center">
 	        <input type="button" value="Сохранить настройки" id="mserj_save_settings" />
 	      </div>
@@ -124,12 +172,50 @@ const attachSettingsModal = () => {
 		GM_setValue('showMagnetButton', $('#mserj_showMagnetButton').is(':checked'))
 		GM_setValue('showDownloadButton', $('#mserj_showDownloadButton').is(':checked'))
 
+		GM_setValue('showAddToTorrServerButton', $('#mserj_showAddToTorrServerButton').is(':checked'))
+		GM_setValue('torrServerIp', $('#mserj_torrServerIp').val())
+		GM_setValue('torrServerPort', $('#mserj_torrServerPort').val())
+		GM_setValue('torrServerLogin', $('#mserj_torrServerLogin').val())
+		GM_setValue('torrServerPassword', $('#mserj_torrServerPassword').val())
+
 		loadSettings()
 		$('#mserj_settings').toggle('fast')
 		location.reload()
 	})
 }
 
+/**
+ * TorrServer stuff
+ */
+function addToTorrServer(data) {
+	$.ajax({
+		method: 'POST',
+		url: `${settings.torrServerIp}:${settings.torrServerPort}/torrents`,
+		dataType: 'json',
+		data: JSON.stringify({ action: 'add', save_to_db: true, ...data }),
+		headers: {
+			'Content-Type': 'application/json',
+			...(settings.torrServerLogin &&
+				settings.torrServerPassword && { Authorization: 'Basic ' + btoa(settings.torrServerLogin + ':' + settings.torrServerPassword) })
+		},
+		success: () => {
+			alert('Успешно добавлено в TorrServer')
+		},
+		error: response => {
+			console.log('response', response)
+			console.log('response.status', response.status)
+			if (response.status === 401) {
+				alert('Авторизация не удалась! Проверьте ( соединение / логин / пароль )')
+			} else {
+				alert('Не удалось отправить запрос на TorrServer')
+			}
+		}
+	})
+}
+
+/**
+ * handle search page case
+ */
 const processSearchPage = () => {
 	// Function to fetch torrent hash and add download/magnet links
 	async function processTorrentRow(row) {
@@ -150,14 +236,14 @@ const processSearchPage = () => {
 				row.insertBefore(downloadCell, row.firstChild)
 			}
 
-			if (settings.showMagnetButton) {
+			if (settings.showMagnetButton || settings.showAddToTorrServerButton) {
 				// Fetch torrent hash
 				const response = await fetch(`/get_srv_details.php?id=${id}&action=2`)
 				const html = await response.text()
 				const dom = new DOMParser().parseFromString(html, 'text/html')
 				const torrentHash = dom.querySelector('ul > li:first-child')?.innerText.substr(10)
 
-				if (torrentHash) {
+				if (settings.showMagnetButton && torrentHash) {
 					// Create magnet link
 					const magnetCell = document.createElement('td')
 					const magnetLink = document.createElement('a')
@@ -170,6 +256,34 @@ const processSearchPage = () => {
 					magnetCell.appendChild(magnetLink)
 					row.insertBefore(magnetCell, row.firstChild)
 				}
+
+				// Adding "add to torrServer" button to the page.
+				if (settings.showAddToTorrServerButton && torrentHash) {
+					// Create torrServer button
+					const torrServerCell = document.createElement('td')
+					const torrServerButton = document.createElement('button')
+					torrServerButton.id = `add_to_torrserver-${id}`
+					torrServerButton.title = 'Добавить в TorrServer'
+					torrServerButton.style.display = 'block'
+					torrServerButton.style.fontSize = '0px'
+					torrServerButton.style.border = 'none'
+					torrServerButton.style.padding = '0px'
+					torrServerButton.style.cursor = 'pointer'
+					torrServerButton.innerHTML = torrServerIcon
+
+					torrServerCell.appendChild(torrServerButton)
+					if (settings.showMagnetButton) {
+						row.firstChild.parentNode.insertBefore(torrServerCell, row.firstChild.nextSibling) // something like row.insertAfter(torrServerCell, row.firstChild)
+					} else {
+						row.insertBefore(torrServerCell, row.firstChild)
+					}
+
+					$(`#add_to_torrserver-${id}`).on('click', () => {
+						addToTorrServer({
+							link: `magnet:?xt=urn:btih:${torrentHash}`
+						})
+					})
+				}
 			}
 		}
 	}
@@ -180,6 +294,7 @@ const processSearchPage = () => {
 	// Add empty cells for download and magnet links in the table header
 	settings.showDownloadButton && tableHeader.prepend('<td class="z"></td>')
 	settings.showMagnetButton && tableHeader.prepend('<td class="z"></td>')
+	settings.showAddToTorrServerButton && tableHeader.prepend('<td class="z"></td>')
 
 	// Process each row in the table (excluding the header row)
 	table
@@ -190,6 +305,9 @@ const processSearchPage = () => {
 		})
 }
 
+/**
+ * handle details page case
+ */
 const processDetailsPage = async () => {
 	// Finding download button cell.
 	const downloadCell = document.querySelector('.w100p td:first-of-type')
@@ -201,16 +319,33 @@ const processDetailsPage = async () => {
 	const dom = new DOMParser().parseFromString(response, 'text/html')
 	const torrentHash = dom.documentElement.querySelector('ul > li:first-child').innerText.substr(10)
 
-	// And finally adding magnet link to the page.
+	// Adding magnet link to the page.
 	if (settings.showMagnetButton) {
 		downloadCell.insertAdjacentHTML(
 			'beforebegin',
 			`<td style="width: 30px;"><a title="Magnet-ссылка" href="magnet:?xt=urn:btih:${torrentHash}" style="display: block; font-size: 0;">${magnetIcon}</a></td>`
 		)
 	}
+
+	// Adding "add to torrServer" button to the page.
+	if (settings.showAddToTorrServerButton) {
+		downloadCell.insertAdjacentHTML(
+			'beforebegin',
+			`<td style="width: 30px;"><button class="add_to_torrserver" title="Добавить в TorrServer" style="display: block; font-size: 0; border: none; padding: 0; cursor: pointer;">${torrServerIcon}</button></td>`
+		)
+		const poster = $('.p200').attr('src')
+		$('.add_to_torrserver').on('click', e => {
+			addToTorrServer({
+				link: `magnet:?xt=urn:btih:${torrentHash}`,
+				poster: poster.startsWith('http') ? poster : `${location.origin}/${poster}`
+			})
+		})
+	}
 }
 
-// Script starts here after page is ready
+/**
+ * Main script starts here after page is ready
+ */
 $(document).ready(function () {
 	loadSettings()
 	attachSettingsModal()
