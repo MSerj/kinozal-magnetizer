@@ -202,8 +202,6 @@ function addToTorrServer(data) {
 			alert('Успешно добавлено в TorrServer')
 		},
 		error: response => {
-			console.log('response', response)
-			console.log('response.status', response.status)
 			if (response.status === 401) {
 				alert('Авторизация не удалась! Проверьте ( соединение / логин / пароль )')
 			} else {
