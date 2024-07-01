@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name          Kinozal Magnetizer
-// @description   Magnet link-icon maker for kinozal.(tv|me|guru)
+// @name          Kinozal Magnetizer + TorrServer
+// @description   Magnet link-icon maker for kinozal.(tv|me|guru) + "Add to TorrServer" button
 // @version       1.10
 // @match         *://kinozal.tv/details.php*
 // @match	      *://kinozal.me/details.php*
