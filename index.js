@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Kinozal Magnetizer + TorrServer
 // @description   Magnet link-icon maker for kinozal.(tv|me|guru) + "Add to TorrServer" button
-// @version       1.10
+// @version       1.12
 // @match         *://kinozal.tv/details.php*
 // @match	      *://kinozal.me/details.php*
 // @match	      *://kinozal.guru/details.php*
@@ -211,14 +211,37 @@ function addToTorrServer(data) {
 	})
 }
 
+// Fetch torrent poster
+async function fetchTorrentPoster(url) {
+	try {
+		const response = await fetch(url)
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`)
+		}
+		const htmlString = await response.text()
+		const parser = new DOMParser()
+		const doc = parser.parseFromString(htmlString, 'text/html')
+
+		const poster = doc.querySelector('img.p200')
+		if (poster) {
+			return poster.src
+		} else {
+			return null
+		}
+	} catch (error) {
+		console.error('Error fetching or parsing HTML:', error)
+		return null
+	}
+}
+
 /**
  * handle search page case
  */
 const processSearchPage = () => {
 	// Function to fetch torrent hash and add download/magnet links
 	async function processTorrentRow(row) {
-		const url = $(row).find('.nam a').attr('href')
-		const uArgs = url.split('?')[1].split('&')
+		const torrentUrl = $(row).find('.nam a').attr('href')
+		const uArgs = torrentUrl.split('?')[1].split('&')
 
 		// Find torrent id
 		let id = uArgs.find(el => el.startsWith('id='))?.split('=')[1]
@@ -277,9 +300,13 @@ const processSearchPage = () => {
 					}
 
 					$(`#add_to_torrserver-${id}`).on('click', () => {
-						addToTorrServer({
-							link: `magnet:?xt=urn:btih:${torrentHash}`
-						})
+						;(async () => {
+							const poster = await fetchTorrentPoster(torrentUrl)
+							addToTorrServer({
+								link: `magnet:?xt=urn:btih:${torrentHash}`,
+								poster
+							})
+						})()
 					})
 				}
 			}
